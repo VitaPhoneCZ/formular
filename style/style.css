@@ -1,0 +1,191 @@
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.form-container {
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin: 20px auto; /* Centers horizontally with some vertical margin */
+    box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.logo {
+    width: 48px;
+    height: auto;
+    margin-bottom: 8px;
+}
+
+h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: #b3b3b3;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    stroke: #ff4d4d;
+}
+
+.input-field {
+    background-color: #333333;
+    border: 1px solid #ff4d4d;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 12px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-field::placeholder {
+    color: #808080;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox {
+    margin-right: 8px;
+}
+
+.captcha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    background-color: #333333;
+    border-radius: 4px;
+    padding: 8px;
+    flex-wrap: wrap; /* Allows wrapping on small screens */
+}
+
+.captcha-button {
+    background-color: #00cc00;
+    color: #000000;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    margin-right: 8px; /* Space between button and Cloudflare info */
+}
+
+.check-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    stroke: #000000;
+}
+
+.cloudflare {
+    display: flex;
+    align-items: center;
+    color: #808080;
+    font-size: 12px;
+    flex: 1; /* Takes remaining space */
+}
+
+.cloudflare-logo {
+    width: 80px;
+    height: auto;
+    margin-right: 8px;
+}
+
+.submit-button {
+    background-color: #cc0000;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 16px;
+    min-height: 48px; /* Ensures tappable size for mobile */
+}
+
+.form-footer {
+    text-align: center;
+    font-size: 14px;
+    color: #b3b3b3;
+}
+
+.form-footer a {
+    color: #ff4d4d;
+    text-decoration: none;
+}
+
+/* Media query for smaller screens (phones) */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 24px; /* Reduce padding for smaller screens */
+        border-radius: 12px; /* Slightly smaller radius if desired */
+        margin: 16px 0; /* Vertical margins only, no left/right to fit edge-to-edge */
+        max-width: none; /* Remove max-width to allow full width */
+    }
+
+    h2 {
+        font-size: 20px; /* Slightly smaller heading */
+    }
+
+    .input-field {
+        font-size: 14px; /* Ensure readable but not too large */
+        padding: 10px;
+    }
+
+    .submit-button {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .captcha {
+        flex-direction: column; /* Stack vertically on very small screens */
+        align-items: flex-start;
+    }
+
+    .captcha-button {
+        margin-bottom: 8px; /* Space when stacked */
+        margin-right: 0;
+    }
+
+    .cloudflare-logo {
+        width: 60px; /* Smaller logo on mobile */
+    }
+}
