@@ -16,6 +16,7 @@ body {
     padding: 32px;
     width: 100%;
     max-width: 400px;
+    min-width: 400px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     margin: 20px auto; /* Centers horizontally with some vertical margin */
     box-sizing: border-box; /* Ensures padding is included in width */
@@ -188,4 +189,61 @@ label {
     .cloudflare-logo {
         width: 60px; /* Smaller logo on mobile */
     }
+}
+
+.cf-challenge {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    background: #333333;
+    padding: 14px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    gap: 12px;
+    font-size: 14px;
+}
+
+#fakeCaptcha {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkmark {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #666;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #222;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.checkmark svg {
+    width: 16px;
+    height: 16px;
+    stroke: #000;
+    stroke-width: 3;
+    display: none;
+}
+
+/* When checked → green & permanent */
+#fakeCaptcha:checked ~ .checkmark {
+    background: #00cc00;
+    border-color: #00cc00;
+}
+
+#fakeCaptcha:checked ~ .checkmark svg {
+    display: block;
+}
+
+/* Make it impossible to uncheck (visual + JS) */
+#fakeCaptcha:checked ~ .cf-text {
+    color: #00cc00;
+    font-weight: 600;
 }

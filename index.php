@@ -22,7 +22,7 @@
                         </svg>
                         Username
                     </label>
-                    <input type="text" id="username" placeholder="Username (alphanumeric only)" class="input-field">
+                    <input type="text" id="username" placeholder="Enter Your Username" class="input-field">
                 </div>
                 <div class="form-group">
                     <label for="password">
@@ -31,7 +31,7 @@
                         </svg>
                         Password
                     </label>
-                    <input type="password" id="password" placeholder="Enter Your Password (min 6 characters)" class="input-field">
+                    <input type="password" id="password" placeholder="Enter Your Password" class="input-field">
                 </div>
                 <div class="form-group">
                     <label for="confirm-password">
@@ -47,15 +47,23 @@
                     <label for="terms">I agree with terms of service and privacy policy</label>
                 </div>
                 <div class="captcha">
-                    <button class="captcha-button success">
-                        <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Správně!
-                    </button>
+                    <label class="cf-challenge" id="fakeCaptchaLabel">
+                        <input type="checkbox" id="fakeCaptcha">
+                        <span class="checkmark">
+                            <svg class="check-icon" viewBox="0 0 24 24">
+                                <path d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </span>
+                        <span class="cf-text">Nejsem robot</span>
+                    </label>
+
                     <div class="cloudflare">
-                        <img src="https://www.cloudflare.com/logo/cloudflare-logo-horizontal-orange-on-white.svg" alt="Cloudflare" class="cloudflare-logo">
-                        <span>Soukromí - Podmínky</span>
+                        
+                        <div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cloudflare_Logo.svg/1024px-Cloudflare_Logo.svg.png" 
+                                 alt="Cloudflare" class="cloudflare-logo">
+                            <small style="color:#808080;">Soukromí - Podmínky</small>
+                        </div>
                     </div>
                 </div>
                 <button type="submit" class="submit-button">Create Account</button>
