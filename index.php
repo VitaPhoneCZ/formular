@@ -62,6 +62,8 @@
                         <div>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cloudflare_Logo.svg/1024px-Cloudflare_Logo.svg.png" 
                                  alt="Cloudflare" class="cloudflare-logo">
+                        </div>
+                        <div>
                             <small style="color:#808080;">Soukromí - Podmínky</small>
                         </div>
                     </div>
