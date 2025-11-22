@@ -27,7 +27,7 @@ if (!isset($_SESSION['user_id'])) {
             <p>Jsi úspěšně přihlášený!</p>
             
             <br><br>
-            <a href="logout.php" class="submit-button" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none;">
+            <a href="logout.php" class="submit-button" style="width:auto; padding:12px 24px; text-decoration:none;">
                 Odhlásit se
             </a>
         </section>
