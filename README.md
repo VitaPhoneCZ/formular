@@ -22,7 +22,7 @@
 ## Instalace (XAMPP / lokální server)
 
 1. Naklonuj nebo stáhni projekt  
-2. Rozbal do složky v `htdocs` (např. `modern-auth`)  
+2. Rozbal do složky v `htdocs` (např. `formular`)  
 3. Spusť XAMPP → Apache + MySQL  
 4. V phpMyAdmin spusť tento SQL:
 
@@ -37,14 +37,14 @@ CREATE TABLE users (
 );
 ```
 5. Otevři v prohlížeči:  
-   `http://localhost/modern-auth/register.php`
+   `http://localhost/register.php`
 
 Hotovo! Můžeš se registrovat a přihlašovat.
 
 ## Struktura projektu
 
 ```
-modern-auth/
+formular/
 ├── inc/
 │   └── config.php
 ├── style/
