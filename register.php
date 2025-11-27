@@ -1,36 +1,40 @@
 <?php require_once 'inc/config.php'; 
 
-// Zpracování formuláře
 $error = '';
 $success = '';
+$username = $username ?? '';
+$email = $email ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm-password'] ?? '';
     $terms    = isset($_POST['terms']);
 
-    if (empty($username) || empty($password) || empty($confirm)) {
-        $error = 'Všechna pole jsou povinná!';
+    if ($username === '' || $email === '' || $password === '' || $confirm === '') {
+        $error = 'Všechna pole jsou povinná.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Zadej platný e-mail.';
     } elseif ($password !== $confirm) {
-        $error = 'Hesla se neshodují!';
+        $error = 'Hesla se neshodují.';
     } elseif (strlen($password) < 6) {
-        $error = 'Heslo musí mít alespoň 6 znaků!';
+        $error = 'Heslo musí mít alespoň 6 znaků.';
     } elseif (!$terms) {
-        $error = 'Musíte souhlasit s podmínkami!';
+        $error = 'Musíš souhlasit s podmínkami.';
     } else {
-        // Kontrola, jestli uživatel už existuje
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $email]);
         if ($stmt->fetch()) {
-            $error = 'Tento uživatel už existuje!';
+            $error = 'Tento uživatel nebo e-mail už existuje.';
         } else {
-            // Registrace
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-            $stmt->execute([$username, $hash]);
-            
-            $success = 'Registrace úspěšná! Nyní se můžeš <a href="login.php" style="color:#ff4d4d;">přihlásit</a>.';
+            $avatarUrl = 'https://api.dicebear.com/7.x/initials/svg?seed=' . urlencode($username);
+            $stmt = $pdo->prepare("INSERT INTO users (username, email, password, avatar_url) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$username, $email, $hash, $avatarUrl]);
+            $success = 'Registrace úspěšná! Nyní se můžeš <a href="login.php">přihlásit</a>.';
+            $username = '';
+            $email = '';
         }
     }
 }
@@ -45,86 +49,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="style/style.css">
     <script src="script/script.js" defer></script>
 </head>
-<body>
-    <main>
-        <section class="form-container">
-            <div class="form-header">
-                <img src="img/logo.png" alt="logo" class="logo">
-                <h2>Vytvořit účet</h2>
+<body class="auth-body">
+    <main class="auth-wrapper">
+        <section class="auth-card">
+            <div class="auth-info">
+                <div class="tag">Start here</div>
+                <h1>Nový účet během minuty</h1>
+                <p>Moderní rozhraní, zabezpečené přihlášení a krásný dashboard hned po registraci.</p>
+                <div class="pill-group">
+                    <span class="pill">Hashovaná hesla</span>
+                    <span class="pill">Rychlá registrace</span>
+                    <span class="pill">Responzivní UI</span>
+                </div>
+                <ol class="steps">
+                    <li>Vyplň uživatelské jméno a heslo</li>
+                    <li>Potvrď podmínky a captcha</li>
+                    <li>Hotovo! Přihlas se a pokračuj</li>
+                </ol>
+                <a href="login.php" class="ghost-button">Mám účet → Přihlásit</a>
             </div>
 
-            <?php if ($error): ?>
-                <p style="color:#ff4d4d; text-align:center; background:#330000; padding:12px; border-radius:4px; margin:16px 0;">
-                    <?= htmlspecialchars($error) ?>
-                </p>
-            <?php endif; ?>
-
-            <?php if ($success): ?>
-                <p style="color:#00cc00; text-align:center; background:#003300; padding:12px; border-radius:4px; margin:16px 0;">
-                    <?= $success ?>
-                </p>
-            <?php endif; ?>
-
-            <form method="POST" action="">
-                <div class="form-group">
-                    <label for="username">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Uživatelské jméno
-                    </label>
-                    <input type="text" name="username" id="username" placeholder="Zadej uživatelské jméno" class="input-field" value="<?= htmlspecialchars($username ?? '') ?>" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Heslo
-                    </label>
-                    <input type="password" name="password" id="password" placeholder="Zadej heslo" class="input-field" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirm-password">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Potvrď heslo
-                    </label>
-                    <input type="password" name="confirm-password" id="confirm-password" placeholder="Zopakuj heslo" class="input-field" required>
-                </div>
-
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="terms" name="terms" class="checkbox" required>
-                    <label for="terms">Souhlasím s podmínkami služby a zásadami ochrany osobních údajů</label>
-                </div>
-
-                <div class="captcha">
-                    <label class="cf-challenge" id="fakeCaptchaLabel">
-                        <input type="checkbox" id="fakeCaptcha">
-                        <span class="checkmark">
-                            <svg class="check-icon" viewBox="0 0 24 24">
-                                <path d="M5 13l4 4L19 7"/>
-                            </svg>
-                        </span>
-                        <span class="cf-text">Nejsem robot</span>
-                    </label>
-                    <div class="cloudflare">
-                        <div>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cloudflare_Logo.svg/1024px-Cloudflare_Logo.svg.png" 
-                                 alt="Cloudflare" class="cloudflare-logo">
-                        </div>
-                        <div><small style="color:#808080;">Soukromí - Podmínky</small></div>
+            <div class="form-panel">
+                <div class="form-header compact">
+                    <img src="img/logo.png" alt="logo" class="logo">
+                    <div>
+                        <p class="eyebrow">Signup</p>
+                        <h2>Vytvořit účet</h2>
                     </div>
                 </div>
 
-                <button type="submit" class="submit-button" disabled>Vytvořit účet</button>
-            </form>
+                <?php if ($error): ?>
+                    <p class="alert alert-error"><?= htmlspecialchars($error) ?></p>
+                <?php endif; ?>
 
-            <div class="form-footer">
-                <p>Máš už účet? <a href="login.php">Přihlásit se</a></p>
+                <?php if ($success): ?>
+                    <p class="alert alert-success"><?= $success ?></p>
+                <?php endif; ?>
+
+                <form method="POST" class="auth-form">
+                    <label class="floating-input">
+                        <span>Uživatelské jméno</span>
+                        <input type="text" name="username" value="<?= htmlspecialchars($username) ?>" placeholder="např. cybernova" required>
+                    </label>
+
+                    <label class="floating-input">
+                        <span>E-mail</span>
+                        <input type="email" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="např. me@cybernova.dev" required>
+                    </label>
+
+                    <label class="floating-input">
+                        <span>Heslo</span>
+                        <input type="password" name="password" placeholder="min. 6 znaků" required>
+                    </label>
+
+                    <label class="floating-input">
+                        <span>Potvrď heslo</span>
+                        <input type="password" name="confirm-password" placeholder="zopakuj heslo" required>
+                    </label>
+
+                    <label class="terms">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        Souhlasím s podmínkami a zásadami ochrany osobních údajů
+                    </label>
+
+                    <div class="captcha auth-captcha">
+                        <label class="cf-challenge" id="fakeCaptchaLabel">
+                            <input type="checkbox" id="fakeCaptcha">
+                            <span class="checkmark">
+                                <svg class="check-icon" viewBox="0 0 24 24">
+                                    <path d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </span>
+                            <span class="cf-text">Nejsem robot</span>
+                        </label>
+                        <div class="cloudflare">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cloudflare_Logo.svg/1024px-Cloudflare_Logo.svg.png" 
+                                 alt="Cloudflare" class="cloudflare-logo">
+                            <small>Soukromí • Podmínky</small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button full-width" disabled>Vytvořit účet</button>
+                </form>
             </div>
         </section>
     </main>

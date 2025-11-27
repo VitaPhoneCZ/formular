@@ -4,28 +4,29 @@ require_once 'inc/config.php';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $identity = trim($_POST['identity'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (empty($username) || empty($password)) {
-        $error = 'Vyplň prosím všechna pole!';
+    if ($identity === '' || $password === '') {
+        $error = 'Vyplň prosím všechna pole.';
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $pdo->prepare("SELECT id, username, email, password, avatar_url FROM users WHERE username = ? OR email = ? LIMIT 1");
+        $stmt->execute([$identity, $identity]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['avatar_url'] = $user['avatar_url'];
             header("Location: index.php");
             exit;
-        } else {
-            $error = 'Špatné uživatelské jméno nebo heslo!';
         }
+
+        $error = 'Špatné uživatelské jméno nebo heslo.';
     }
 }
 
-// Pokud je už přihlášený → přesměruj na homepage
 if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
@@ -40,46 +41,49 @@ if (isset($_SESSION['user_id'])) {
     <title>Přihlášení</title>
     <link rel="stylesheet" href="style/style.css">
 </head>
-<body>
-    <main>
-        <section class="form-container">
-            <div class="form-header">
-                <img src="img/logo.png" alt="logo" class="logo">
-                <h2>Přihlášení</h2>
+<body class="auth-body">
+    <main class="auth-wrapper">
+        <section class="auth-card">
+            <div class="auth-info">
+                <div class="tag">Modern Auth</div>
+                <h1>Vítej zpět!</h1>
+                <p>Pokračuj v tom, co máš rozpracované. Tvůj dashboard už čeká.</p>
+                <ul class="auth-highlights">
+                    <li>✅ Temný cyberpunkový design</li>
+                    <li>✅ Hashovaná hesla & bezpečné přihlášení</li>
+                    <li>✅ Vše připraveno pro další funkce</li>
+                </ul>
+                <a href="register.php" class="ghost-button">Nemáš účet? Registruj se</a>
             </div>
 
-            <?php if ($error): ?>
-                <p style="color:#ff4d4d; text-align:center; background:#330000; padding:12px; border-radius:4px; margin:16px 0;">
-                    <?= htmlspecialchars($error) ?>
-                </p>
-            <?php endif; ?>
-
-            <form method="POST" action="">
-                <div class="form-group">
-                    <label for="username">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Uživatelské jméno
-                    </label>
-                    <input type="text" name="username" id="username" placeholder="Zadej uživatelské jméno" class="input-field" required>
+            <div class="form-panel">
+                <div class="form-header compact">
+                    <img src="img/logo.png" alt="logo" class="logo">
+                    <div>
+                        <p class="eyebrow">Login</p>
+                        <h2>Přihlášení</h2>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Heslo
+                <?php if ($error): ?>
+                    <p class="alert alert-error"><?= htmlspecialchars($error) ?></p>
+                <?php endif; ?>
+
+                <form method="POST" class="auth-form">
+                    <label class="floating-input">
+                        <span>Uživatelské jméno nebo e-mail</span>
+                        <input type="text" name="identity" placeholder="např. cyberwolf nebo me@cyber.dev" required>
                     </label>
-                    <input type="password" name="password" id="password" placeholder="Zadej heslo" class="input-field" required>
-                </div>
 
-                <button type="submit" class="submit-button">Přihlásit se</button>
-            </form>
+                    <label class="floating-input">
+                        <span>Heslo</span>
+                        <input type="password" name="password" placeholder="••••••••" required>
+                    </label>
 
-            <div class="form-footer">
-                <p>Nemáš účet? <a href="register.php">Vytvořit účet</a></p>
+                    <button type="submit" class="submit-button full-width">Pokračovat</button>
+                </form>
+
+                <p class="form-hint center">Zapomněl jsi heslo? <span class="muted">Reset přidáme v další verzi.</span></p>
             </div>
         </section>
     </main>
