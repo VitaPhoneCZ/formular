@@ -1,5 +1,6 @@
 <?php 
 require_once 'inc/config.php';
+require_once 'inc/GoogleAuthenticator.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location:	login.php");
@@ -9,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $profileError = '';
 $profileSuccess = '';
 
-$stmt = $pdo->prepare("SELECT id, username, email, password, avatar_url, created_at FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT id, username, email, password, avatar_url, created_at, google_auth_secret FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
 
@@ -20,6 +21,7 @@ if (!$user) {
 }
 
 $avatarUrl = $user['avatar_url'] ?: 'https://api.dicebear.com/7.x/initials/svg?seed=' . urlencode($user['username']);
+$require2FA = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $currentPassword = $_POST['current_password'] ?? '';
@@ -74,11 +76,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $profileError = 'Nové heslo musí mít alespoň 6 znaků.';
             } elseif ($newPassword !== $confirmPassword) {
                 $profileError = 'Nové heslo a potvrzení se neshodují.';
+            } elseif (!$user['google_auth_secret']) {
+                $profileError = 'Pro změnu hesla musíš mít nastavenou 2FA.';
             } else {
-                $hash = password_hash($newPassword, PASSWORD_DEFAULT);
-                $updatePassword = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-                $updatePassword->execute([$hash, $user['id']]);
-                $changes++;
+                // Check if 2FA code is provided
+                $authCode = trim($_POST['auth_code_2fa'] ?? '');
+                if (empty($authCode)) {
+                    $profileError = 'Pro změnu hesla je vyžadován ověřovací kód z Google Authenticator.';
+                    $require2FA = true;
+                } elseif (!GoogleAuthenticator::verifyCode($user['google_auth_secret'], $authCode)) {
+                    $profileError = 'Neplatný ověřovací kód. Zkus to znovu.';
+                    $require2FA = true;
+                } else {
+                    $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+                    $updatePassword = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                    $updatePassword->execute([$hash, $user['id']]);
+                    $changes++;
+                }
             }
         }
 
@@ -184,6 +198,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="password" id="confirm_password" name="confirm_password" placeholder="********">
                         </div>
                     </div>
+
+                    <?php if ($require2FA || (isset($_POST['new_password']) && !empty($_POST['new_password']))): ?>
+                    <div class="form-row">
+                        <div class="floating-label">
+                            <label for="auth_code_2fa">Ověřovací kód z Google Authenticator (6 číslic) *</label>
+                            <input type="text" id="auth_code_2fa" name="auth_code_2fa" placeholder="123456" maxlength="6" pattern="[0-9]{6}" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.3rem;" autocomplete="off">
+                        </div>
+                        <p class="form-hint">* Povinné pro změnu hesla. Zadej 6místný kód z aplikace Google Authenticator.</p>
+                    </div>
+                    <?php endif; ?>
 
                     <div class="form-row">
                         <div class="floating-label">
