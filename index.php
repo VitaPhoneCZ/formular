@@ -18,7 +18,25 @@ if (!$user) {
 
 $createdAt = $user['created_at'] ? new DateTime($user['created_at']) : null;
 $daysWithUs = $createdAt ? max(1, $createdAt->diff(new DateTime())->days + 1) : null;
-$avatarUrl = $user['avatar_url'] ?: 'https://api.dicebear.com/7.x/initials/svg?seed=' . urlencode($user['username']);
+
+// Helper function to get avatar URL (handles uploaded files and URLs)
+function getAvatarUrl($avatarUrl, $username) {
+    if (empty($avatarUrl)) {
+        return 'https://api.dicebear.com/7.x/initials/svg?seed=' . urlencode($username);
+    }
+    // If it's a relative path (uploaded file), prepend the base path
+    if (strpos($avatarUrl, 'http') !== 0 && strpos($avatarUrl, '/') === 0) {
+        return $avatarUrl;
+    }
+    // If it's a relative path without leading slash
+    if (strpos($avatarUrl, 'http') !== 0 && strpos($avatarUrl, 'uploads/') === 0) {
+        return '/' . $avatarUrl;
+    }
+    // Otherwise it's a full URL (DiceBear or external)
+    return $avatarUrl;
+}
+
+$avatarUrl = getAvatarUrl($user['avatar_url'], $user['username']);
 ?>
 
 <!DOCTYPE html>
